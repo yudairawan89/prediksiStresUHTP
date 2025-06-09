@@ -15,7 +15,7 @@ st.title("📊 Real-Time Stress Detection Dashboard")
 # === AUTHENTIKASI GOOGLE SHEETS === #
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "your_credentials.json", scope
+    "credentials.json", scope
 )
 gc = gspread.authorize(credentials)
 
