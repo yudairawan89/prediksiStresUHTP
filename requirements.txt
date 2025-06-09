@@ -4,3 +4,4 @@ scikit-learn
 joblib
 folium
 streamlit-folium
+gspread
