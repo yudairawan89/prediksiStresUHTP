@@ -32,13 +32,11 @@ def load_data():
 def preprocess_data(df):
     df = df.drop(columns=['Timestamp'], errors='ignore')
     df.columns = ['Suhu', 'SpO2', 'HeartRate', 'SYS', 'DIA']
-    df = df.replace(0, np.nan).dropna()  # buang nilai 0
-    scaler = StandardScaler()
-    scaled = scaler.fit_transform(df)
-    return scaled, df
+    df = df.replace(0, np.nan).dropna()
+    return df
 
 # === LOAD MODEL TERBAIK === #
-model = joblib.load("model_stacking_dummy.joblib")
+model = joblib.load("model_stacking_dummy_pipeline.joblib")
 label_map = {0: 'Anxious', 1: 'Relaxed', 2: 'Tense', 3: 'Calm'}
 
 # === LOAD DATA === #
