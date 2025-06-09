@@ -38,7 +38,7 @@ def preprocess_data(df):
     return scaled, df
 
 # === LOAD MODEL TERBAIK === #
-model = joblib.load("model_stacking_LR_XGB_OPTUNA.pkl")
+model = joblib.load("model_stacking_dummy.joblib")
 label_map = {0: 'Anxious', 1: 'Relaxed', 2: 'Tense', 3: 'Calm'}
 
 # === LOAD DATA === #
