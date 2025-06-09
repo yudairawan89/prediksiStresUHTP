@@ -1,8 +1,18 @@
-streamlit
-pandas
-scikit-learn
-joblib
-folium
-streamlit-folium
-gspread
-oauth2client
+streamlit==1.35.0
+pandas==2.2.2
+scikit-learn==1.3.2
+joblib==1.3.2
+xgboost==2.0.3
+
+# Google Sheets Integration
+gspread==5.12.0
+oauth2client==4.1.3
+
+# Optional: For map-based dashboards (if you plan to use Folium)
+folium==0.16.0
+streamlit-folium==0.18.0
+
+# Tambahan penting
+numpy==1.24.4
+matplotlib==3.8.4
+seaborn==0.13.2
