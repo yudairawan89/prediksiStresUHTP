@@ -4,6 +4,7 @@ import joblib
 from streamlit_autorefresh import st_autorefresh
 from sklearn.preprocessing import StandardScaler
 import datetime
+from io import BytesIO
 
 # === PAGE CONFIG ===
 st.set_page_config(page_title="StressSense - Realtime Stress Detection", layout="wide")
@@ -37,9 +38,11 @@ st.title("🧠 StressSense: Real-Time Student Stress Detection")
 st.markdown("<div class='section-title'>Live Monitoring (Auto-refresh setiap 7 detik)</div>", unsafe_allow_html=True)
 st_autorefresh(interval=7000, key="refresh")
 
+# === LOAD DAN BERSIHKAN DATA ===
 df = load_data()
+df.columns = df.columns.str.strip()  # hilangkan spasi tak terlihat
 
-# === RENAME SESUAI KOLON ===
+# Rename agar sesuai dengan nama saat training
 df = df.rename(columns={
     'Suhu (°C)': 'Temperature',
     'SpO2 (%)': 'SpO2',
@@ -48,15 +51,16 @@ df = df.rename(columns={
     'DIA': 'DIA'
 })
 
-features = ['Temperature', 'SpO2', 'HeartRate', 'SYS', 'DIA']
-df_clean = df[features].copy()
+# Siapkan urutan fitur sesuai training
+expected_columns = ['Temperature', 'SpO2', 'HeartRate', 'SYS', 'DIA']
+df_clean = df[expected_columns].copy()
 
-# Konversi tipe data dan tangani missing value
-for col in features:
+# Konversi tipe data dan handle koma/desimal
+for col in expected_columns:
     df_clean[col] = df_clean[col].astype(str).str.replace(',', '.').astype(float).fillna(0)
 
-# Prediksi
-X_scaled = scaler.transform(df_clean[scaler.feature_names_in_])
+# === PREDIKSI ===
+X_scaled = scaler.transform(df_clean)
 predictions = model.predict(X_scaled)
 label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
 df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
@@ -66,7 +70,7 @@ st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
 col1, col2 = st.columns(2)
 with col1:
-    st.write("**Waktu:**", latest['Timestamp'] if 'Timestamp' in latest else datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    st.write("**Waktu:**", latest.get('Timestamp', datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
     st.write("**Temperature:**", latest['Temperature'])
     st.write("**SpO2:**", latest['SpO2'])
     st.write("**HeartRate:**", latest['HeartRate'])
@@ -74,14 +78,17 @@ with col1:
     st.write("**DIA:**", latest['DIA'])
 
 with col2:
-    st.markdown(f"<p style='font-size: 24px; background-color:#f0f0f0; padding:10px; border-radius:5px;'>Predicted Stress Level: <b>{latest['Predicted Stress']}</b></p>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <p style='font-size: 24px; background-color:#f0f0f0;
+        padding:10px; border-radius:5px;'>
+        Predicted Stress Level: <b>{latest['Predicted Stress']}</b></p>
+    """, unsafe_allow_html=True)
 
-# === TAMPILKAN SELURUH DATA ===
+# === TAMPILKAN DATA LENGKAP ===
 st.markdown("<div class='section-title'>📊 Data Lengkap dan Prediksi</div>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
 
-# === UNDUH DATA ===
-from io import BytesIO
+# === DOWNLOAD BUTTON ===
 def to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
