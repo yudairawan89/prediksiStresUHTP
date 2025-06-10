@@ -56,7 +56,7 @@ for col in features:
     df_clean[col] = df_clean[col].astype(str).str.replace(',', '.').astype(float).fillna(0)
 
 # Prediksi
-X_scaled = scaler.transform(df_clean)
+X_scaled = scaler.transform(df_clean[scaler.feature_names_in_])
 predictions = model.predict(X_scaled)
 label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
 df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
