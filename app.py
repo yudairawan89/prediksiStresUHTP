@@ -114,6 +114,8 @@ for i, row in data_tabel.iterrows():
     """
 
 table_html += "</tbody></table>"
+
+# ✅ Render sebagai HTML, bukan teks
 st.markdown(table_html, unsafe_allow_html=True)
 
 
