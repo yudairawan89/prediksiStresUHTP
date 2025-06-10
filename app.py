@@ -117,7 +117,7 @@ st.download_button(
 st.markdown("<div class='section-title'>🧪 Pengujian Menggunakan Data Manual</div>", unsafe_allow_html=True)
 
 if "manual_input" not in st.session_state:
-st.session_state.manual_input = {
+    st.session_state.manual_input = {
     "Temperature": 0.0,
     "SpO2": 0.0,
     "HeartRate": 0.0,
