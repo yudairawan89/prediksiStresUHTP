@@ -169,7 +169,7 @@ with btn2:
             "DIA": 80
         }
         st.session_state.manual_result = None
-        st.experimental_rerun()
+        st.rerun()
 
 if st.session_state.manual_result:
     hasil = st.session_state.manual_result
