@@ -92,8 +92,8 @@ data_tabel = pd.DataFrame({
     ]
 })
 
-# TABEL DENGAN STRIPING DAN RATA TENGAH
-st.markdown("""
+# TABEL DENGAN STRIPING DAN RATA TENGAH (DISEMPURNAKAN)
+table_html = """
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
     <thead>
         <tr style="background-color: #2980b9; color: white;">
@@ -102,18 +102,20 @@ st.markdown("""
         </tr>
     </thead>
     <tbody>
-""", unsafe_allow_html=True)
+"""
 
 for i, row in data_tabel.iterrows():
     bg_color = "#f2f2f2" if i % 2 == 0 else "#ffffff"
-    st.markdown(f"""
+    table_html += f"""
         <tr style="background-color: {bg_color};">
             <td style="text-align: center; padding: 10px;">{row['Variabel']}</td>
             <td style="text-align: center; padding: 10px;">{row['Value']}</td>
         </tr>
-    """, unsafe_allow_html=True)
+    """
 
-st.markdown("</tbody></table>", unsafe_allow_html=True)
+table_html += "</tbody></table>"
+st.markdown(table_html, unsafe_allow_html=True)
+
 
 # PESAN PREDIKSI
 hari_ini = datetime.datetime.now().strftime('%A, %d %B %Y')
