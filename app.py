@@ -88,7 +88,7 @@ label_translate = {
 
 
 # === TAMPILKAN HASIL TERAKHIR DALAM TABEL RAPI ===
-st.markdown("### 🔍 Hasil Prediksi Terakhir")
+st.markdown("### 🔍 Hasil Deteksi Tingkat Stres")
 latest = df.iloc[-1]
 
 data_tabel = pd.DataFrame({
