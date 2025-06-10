@@ -124,7 +124,7 @@ st.session_state.manual_input = {
     "SYS": 0.0,
     "DIA": 0.0
 }
-    }
+    
 if "manual_result" not in st.session_state:
     st.session_state.manual_result = None
 
