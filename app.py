@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 from streamlit_autorefresh import st_autorefresh
 from sklearn.preprocessing import StandardScaler
-import datetime
 from io import BytesIO
 
 # === PAGE CONFIG ===
@@ -44,11 +43,10 @@ def load_data():
     return pd.read_csv(url)
 
 st.title("🧠 UHTP Real-Time Student Stress Detection")
-
 st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
 st_autorefresh(interval=4000, key="refresh")
 
-# === LOAD DAN BERSIHKAN DATA ===
+# === BACA & BERSIHKAN DATA ===
 df = load_data()
 df.columns = df.columns.str.strip()
 
@@ -67,22 +65,19 @@ for col in expected_columns:
     df_clean[col] = df_clean[col].astype(str).str.replace(',', '.').astype(float).fillna(0)
 
 X_scaled = scaler.transform(pd.DataFrame(df_clean.values, columns=scaler.feature_names_in_))
-predictions = model.predict(X_scaled)
 label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
-df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
-
 label_translate = {
     'Anxious': 'Cemas',
     'Calm': 'Tenang',
     'Relaxed': 'Relaks',
     'Tense': 'Tegang'
 }
+predictions = model.predict(X_scaled)
+df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
 
-
-# === TAMPILKAN HASIL TERAKHIR DALAM TABEL RAPI ===
+# === TAMPILKAN HASIL TERAKHIR ===
 st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
-
 data_rows = [
     ('Temperature (°C)', latest['Temperature']),
     ('SpO2 (%)', latest['SpO2']),
@@ -111,14 +106,20 @@ for label, value in data_rows:
     """
 
 table_html += "</tbody></table>"
-
 st.markdown(table_html, unsafe_allow_html=True)
+
+st.markdown(f"""
+<p style='font-size: 18px; background-color:#f0f0f0;
+padding:10px; border-radius:5px; text-align:center;'>
+<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
+</p>
+""", unsafe_allow_html=True)
 
 # === TAMPILKAN DATA LENGKAP ===
 st.markdown("<div class='section-title'>📊 Deteksi Stres Data Kolektif</div>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
 
-# === DOWNLOAD BUTTON ===
+# === DOWNLOAD ===
 def to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -126,7 +127,7 @@ def to_excel(df):
     return output.getvalue()
 
 st.download_button(
-    label="📥 Unduh Hasil Deteksi TIngkat Stres",
+    label="📥 Unduh Hasil Deteksi Tingkat Stres",
     data=to_excel(df),
     file_name="prediksi_stres.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -137,13 +138,13 @@ st.markdown("<div class='section-title'>🧪 Pengujian Menggunakan Data Manual</
 
 if "manual_input" not in st.session_state:
     st.session_state.manual_input = {
-    "Temperature": 0.0,
-    "SpO2": 0.0,
-    "HeartRate": 0.0,
-    "SYS": 0.0,
-    "DIA": 0.0
-}
-    
+        "Temperature": 0.0,
+        "SpO2": 0.0,
+        "HeartRate": 0.0,
+        "SYS": 0.0,
+        "DIA": 0.0
+    }
+
 if "manual_result" not in st.session_state:
     st.session_state.manual_result = None
 
@@ -182,11 +183,11 @@ with btn1:
 with btn2:
     if st.button("♻️ Reset Manual"):
         st.session_state.manual_input = {
-            "Temperature": 36.5,
-            "SpO2": 98.0,
-            "HeartRate": 90,
-            "SYS": 120,
-            "DIA": 80
+            "Temperature": 0.0,
+            "SpO2": 0.0,
+            "HeartRate": 0.0,
+            "SYS": 0.0,
+            "DIA": 0.0
         }
         st.session_state.manual_result = None
         st.rerun()
@@ -197,6 +198,5 @@ if st.session_state.manual_result:
         <p style='font-size: 18px; background-color:#d9f2d9;
         padding:10px; border-radius:5px; text-align:center;'>
         Hasil Prediksi Manual: <b>{hasil} / {label_translate.get(hasil, "-")}</b>
-
         </p>
     """, unsafe_allow_html=True)
