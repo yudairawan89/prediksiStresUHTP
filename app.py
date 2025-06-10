@@ -69,6 +69,14 @@ for col in expected_columns:
 X_scaled = scaler.transform(pd.DataFrame(df_clean.values, columns=scaler.feature_names_in_))
 predictions = model.predict(X_scaled)
 label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
+
+color_map = {
+    'Tense': '#e74c3c',      # Merah
+    'Anxious': '#f39c12',    # Oranye
+    'Calm': '#3498db',       # Biru
+    'Relaxed': '#2ecc71'     # Hijau
+}
+
 df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
 
 label_translate = {
@@ -119,10 +127,9 @@ st.markdown(data_tabel.to_html(index=False, escape=False, classes="custom-table"
 
 
 st.markdown(f"""
-<p style='font-size: 18px; background-color:#f0f0f0;
-padding:10px; border-radius:5px; text-align:center;'>
+<p style='font-size: 18px; background-color:{color_map.get(latest['Predicted Stress'], "#f0f0f0")};
+padding:10px; border-radius:5px; text-align:center; color: white;'>
 <b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
-
 </p>
 """, unsafe_allow_html=True)
 
