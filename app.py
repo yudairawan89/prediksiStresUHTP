@@ -94,7 +94,26 @@ data_tabel = pd.DataFrame({
     ]
 })
 
-st.markdown(data_tabel.to_html(index=False, escape=False), unsafe_allow_html=True)
+table_html = """
+<table style="width: 100%; background-color: #f9f9f9; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px;">
+    <thead>
+        <tr style="background-color: #e0e0e0;">
+            <th style="text-align: center; padding: 10px;">Variabel</th>
+            <th style="text-align: center; padding: 10px;">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
+for i in range(len(data_tabel)):
+    table_html += f"""
+        <tr>
+            <td style="text-align: center; padding: 10px;">{data_tabel.iloc[i, 0]}</td>
+            <td style="text-align: center; padding: 10px;">{data_tabel.iloc[i, 1]}</td>
+        </tr>
+    """
+table_html += "</tbody></table>"
+
+st.markdown(table_html, unsafe_allow_html=True)
 
 st.markdown(f"""
 <p style='font-size: 18px; background-color:#f0f0f0;
