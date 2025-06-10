@@ -94,7 +94,29 @@ data_tabel = pd.DataFrame({
     ]
 })
 
-st.markdown(data_tabel.to_html(index=False, escape=False), unsafe_allow_html=True)
+st.markdown("""
+<style>
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+.custom-table th {
+    text-align: center;
+    background-color: #e0e0e0;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+.custom-table td {
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown(data_tabel.to_html(index=False, escape=False, classes="custom-table"), unsafe_allow_html=True)
+
 
 st.markdown(f"""
 <p style='font-size: 18px; background-color:#f0f0f0;
