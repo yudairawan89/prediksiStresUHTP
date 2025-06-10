@@ -1,107 +1,96 @@
-# streamlit_app.py
-
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
-from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
+from sklearn.preprocessing import StandardScaler
+import datetime
 
-# === CONFIGURASI HALAMAN === #
-st.set_page_config(page_title="Stress Detection - IoT Dashboard", layout="wide")
+# === PAGE CONFIG ===
+st.set_page_config(page_title="StressSense - Realtime Stress Detection", layout="wide")
 
-# === STYLE === #
+# === LOAD MODEL & SCALER ===
+@st.cache_resource
+def load_model_scaler():
+    model, scaler, encoder = joblib.load("stacking_model_stres.joblib")
+    return model, scaler, encoder
+
+model, scaler, encoder = load_model_scaler()
+
+# === STYLING ===
 st.markdown("""
-    <style>
-    .main {background-color: #F9F9F9;}
-    .section-title {
-        background-color: #006699;
-        color: white;
-        padding: 10px;
-        border-radius: 6px;
-        font-weight: bold;
-    }
-    </style>
+<style>
+h1 { color: #2c3e50; }
+.section-title {
+    background-color: #3498db; padding: 10px; border-radius: 5px;
+    color: white; font-size: 20px; font-weight: bold;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# === LOAD MODEL === #
-@st.cache_resource
-def load_model():
-    return joblib.load("model_stacking_dummy_pipeline.joblib")
-
-model = load_model()
-label_map = {0: 'Cemas', 1: 'Rileks', 2: 'Tegang', 3: 'Tenang'}
-color_map = {
-    "Cemas": "red",
-    "Rileks": "green",
-    "Tegang": "yellow",
-    "Tenang": "blue"
-}
-
-# === DATA GOOGLE SHEET === #
-@st.cache_data(ttl=60)
+# === LOAD REALTIME DATA ===
 def load_data():
     url = "https://docs.google.com/spreadsheets/d/1ftXpDVdOWA3nDothJGFxCBfZ-L2Ccr4SMBVyd4_C_v8/export?format=csv"
     return pd.read_csv(url)
 
-# === JUDUL === #
-st.title("📡 Real-Time Stress Detection Dashboard")
-st.markdown("""
-<div class='section-title'>Prediksi Tingkat Stres Mahasiswa Berdasarkan Sinyal Fisiologis IoT</div>
-""", unsafe_allow_html=True)
+st.title("🧠 StressSense: Real-Time Student Stress Detection")
 
-# === REFRESH OTOMATIS === #
-st_autorefresh(interval=60000, key="auto_refresh")
+st.markdown("<div class='section-title'>Live Monitoring (Auto-refresh setiap 7 detik)</div>", unsafe_allow_html=True)
+st_autorefresh(interval=7000, key="refresh")
 
-# === PROSES DATA === #
 df = load_data()
 
-if df.empty:
-    st.warning("Belum ada data tersedia dari perangkat IoT.")
-else:
-    if 'Timestamp' in df.columns:
-        df = df.drop(columns=['Timestamp'])
+# === RENAME SESUAI KOLON ===
+df = df.rename(columns={
+    'Suhu (°C)': 'Temperature',
+    'SpO2 (%)': 'SpO2',
+    'HeartRate (BPM)': 'HeartRate',
+    'SYS': 'SYS',
+    'DIA': 'DIA'
+})
 
-    df.columns = ['Suhu', 'SpO2', 'HeartRate', 'SYS', 'DIA']
-    df = df.replace(0, np.nan).dropna()
+features = ['Temperature', 'SpO2', 'HeartRate', 'SYS', 'DIA']
+df_clean = df[features].copy()
 
-    predictions = model.predict(df)
-    labels = [label_map[p] for p in predictions]
-    df['Predicted Condition'] = labels
+# Konversi tipe data dan tangani missing value
+for col in features:
+    df_clean[col] = df_clean[col].astype(str).str.replace(',', '.').astype(float).fillna(0)
 
-    # === VISUALISASI TABEL === #
-    st.subheader("📋 Data Input dan Prediksi")
-    st.dataframe(df.tail(10), use_container_width=True)
+# Prediksi
+X_scaled = scaler.transform(df_clean)
+predictions = model.predict(X_scaled)
+label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
+df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
 
-    # === BAR CHART KONDISI === #
-    st.subheader("📊 Distribusi Tingkat Stres")
-    count_chart = df['Predicted Condition'].value_counts()
-    st.bar_chart(count_chart)
+# === TAMPILKAN HASIL TERAKHIR ===
+st.markdown("### 🔍 Hasil Prediksi Terakhir")
+latest = df.iloc[-1]
+col1, col2 = st.columns(2)
+with col1:
+    st.write("**Waktu:**", latest['Timestamp'] if 'Timestamp' in latest else datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    st.write("**Temperature:**", latest['Temperature'])
+    st.write("**SpO2:**", latest['SpO2'])
+    st.write("**HeartRate:**", latest['HeartRate'])
+    st.write("**SYS:**", latest['SYS'])
+    st.write("**DIA:**", latest['DIA'])
 
-    # === STATUS TERAKHIR === #
-    latest = df.iloc[-1]
-    kondisi = latest['Predicted Condition']
-    warna = color_map[kondisi]
-    st.markdown(
-        f"""
-        <div style='background-color:{warna}; padding:15px; border-radius:10px; color:white;'>
-        <h4>🧠 Kondisi Terakhir Terdeteksi: <b>{kondisi}</b></h4>
-        </div>
-        """, unsafe_allow_html=True
-    )
+with col2:
+    st.markdown(f"<p style='font-size: 24px; background-color:#f0f0f0; padding:10px; border-radius:5px;'>Predicted Stress Level: <b>{latest['Predicted Stress']}</b></p>", unsafe_allow_html=True)
 
-    # === DOWNLOAD HASIL === #
-    from io import BytesIO
-    def to_excel(df):
-        output = BytesIO()
-        writer = pd.ExcelWriter(output, engine='xlsxwriter')
-        df.to_excel(writer, index=False, sheet_name='Hasil Prediksi')
-        writer.close()
-        return output.getvalue()
+# === TAMPILKAN SELURUH DATA ===
+st.markdown("<div class='section-title'>📊 Data Lengkap dan Prediksi</div>", unsafe_allow_html=True)
+st.dataframe(df, use_container_width=True)
 
-    st.download_button(
-        label="⬇️ Download Hasil Prediksi",
-        data=to_excel(df),
-        file_name="hasil_prediksi_stres.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+# === UNDUH DATA ===
+from io import BytesIO
+def to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+    return output.getvalue()
+
+st.download_button(
+    label="📥 Unduh Hasil Prediksi",
+    data=to_excel(df),
+    file_name="prediksi_stres.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
