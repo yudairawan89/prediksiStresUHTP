@@ -45,7 +45,7 @@ def load_data():
 
 st.title("🧠 UHTP Real-Time Student Stress Detection")
 
-st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
 st_autorefresh(interval=4000, key="refresh")
 
 # === LOAD DAN BERSIHKAN DATA ===
