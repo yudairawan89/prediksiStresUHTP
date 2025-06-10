@@ -1,6 +1,14 @@
 streamlit
 pandas
 scikit-learn
+xgboost
 joblib
 folium
 streamlit-folium
+imbalanced-learn
+optuna
+openpyxl
+xlsxwriter
+matplotlib
+seaborn
+streamlit-autorefresh
