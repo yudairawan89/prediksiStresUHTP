@@ -44,7 +44,6 @@ def load_data():
     return pd.read_csv(url)
 
 st.title("🧠 UHTP Real-Time Student Stress Detection")
-
 st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
 st_autorefresh(interval=4000, key="refresh")
 
@@ -78,7 +77,6 @@ label_translate = {
     'Tense': 'Tegang'
 }
 
-
 # === TAMPILKAN HASIL TERAKHIR DALAM TABEL RAPI ===
 st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
@@ -94,35 +92,39 @@ data_tabel = pd.DataFrame({
     ]
 })
 
+# TABEL DENGAN STRIPING DAN RATA TENGAH
 st.markdown("""
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
     <thead>
-        <tr style="background-color: #3498db; color: white;">
-            <th style="padding: 10px; text-align: center;">Variabel</th>
-            <th style="padding: 10px; text-align: center;">Value</th>
+        <tr style="background-color: #2980b9; color: white;">
+            <th style="text-align: center; padding: 10px;">Variabel</th>
+            <th style="text-align: center; padding: 10px;">Value</th>
         </tr>
     </thead>
     <tbody>
 """, unsafe_allow_html=True)
 
-for _, row in data_tabel.iterrows():
+for i, row in data_tabel.iterrows():
+    bg_color = "#f2f2f2" if i % 2 == 0 else "#ffffff"
     st.markdown(f"""
-        <tr style="background-color: #ecf0f1;">
-            <td style="padding: 10px; text-align: center;">{row['Variabel']}</td>
-            <td style="padding: 10px; text-align: center;">{row['Value']}</td>
+        <tr style="background-color: {bg_color};">
+            <td style="text-align: center; padding: 10px;">{row['Variabel']}</td>
+            <td style="text-align: center; padding: 10px;">{row['Value']}</td>
         </tr>
     """, unsafe_allow_html=True)
 
 st.markdown("</tbody></table>", unsafe_allow_html=True)
 
-
+# PESAN PREDIKSI
+hari_ini = datetime.datetime.now().strftime('%A, %d %B %Y')
+pred_label = latest['Predicted Stress']
+pred_indo = label_translate.get(pred_label, "-")
 
 st.markdown(f"""
-<p style='font-size: 18px; background-color:#f0f0f0;
-padding:10px; border-radius:5px; text-align:center;'>
-<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
-
-</p>
+<div style='background-color:#001fdd; padding:15px; border-radius:10px; color:white; text-align:center; font-size:18px;'>
+    Pada hari <b>{hari_ini}</b>, data ini diprediksi memiliki tingkat stres: 
+    <span style='font-size:22px; font-weight:bold;'> {pred_label} / {pred_indo}</span>
+</div>
 """, unsafe_allow_html=True)
 
 # === TAMPILKAN DATA LENGKAP ===
@@ -137,7 +139,7 @@ def to_excel(df):
     return output.getvalue()
 
 st.download_button(
-    label="📥 Unduh Hasil Deteksi TIngkat Stres",
+    label="📥 Unduh Hasil Deteksi Tingkat Stres",
     data=to_excel(df),
     file_name="prediksi_stres.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -148,13 +150,13 @@ st.markdown("<div class='section-title'>🧪 Pengujian Menggunakan Data Manual</
 
 if "manual_input" not in st.session_state:
     st.session_state.manual_input = {
-    "Temperature": 0.0,
-    "SpO2": 0.0,
-    "HeartRate": 0.0,
-    "SYS": 0.0,
-    "DIA": 0.0
-}
-    
+        "Temperature": 0.0,
+        "SpO2": 0.0,
+        "HeartRate": 0.0,
+        "SYS": 0.0,
+        "DIA": 0.0
+    }
+
 if "manual_result" not in st.session_state:
     st.session_state.manual_result = None
 
@@ -208,6 +210,5 @@ if st.session_state.manual_result:
         <p style='font-size: 18px; background-color:#d9f2d9;
         padding:10px; border-radius:5px; text-align:center;'>
         Hasil Prediksi Manual: <b>{hasil} / {label_translate.get(hasil, "-")}</b>
-
         </p>
     """, unsafe_allow_html=True)
