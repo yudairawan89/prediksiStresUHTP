@@ -71,6 +71,14 @@ predictions = model.predict(X_scaled)
 label_map = {0: 'Anxious', 1: 'Calm', 2: 'Relaxed', 3: 'Tense'}
 df['Predicted Stress'] = [label_map.get(p, "Unknown") for p in predictions]
 
+label_translate = {
+    'Anxious': 'Cemas',
+    'Calm': 'Tenang',
+    'Relaxed': 'Relaks',
+    'Tense': 'Tegang'
+}
+
+
 # === TAMPILKAN HASIL TERAKHIR DALAM TABEL RAPI ===
 st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
@@ -91,7 +99,8 @@ st.markdown(data_tabel.to_html(index=False, escape=False), unsafe_allow_html=Tru
 st.markdown(f"""
 <p style='font-size: 18px; background-color:#f0f0f0;
 padding:10px; border-radius:5px; text-align:center;'>
-<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']}</span>
+<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
+
 </p>
 """, unsafe_allow_html=True)
 
@@ -177,6 +186,7 @@ if st.session_state.manual_result:
     st.markdown(f"""
         <p style='font-size: 18px; background-color:#d9f2d9;
         padding:10px; border-radius:5px; text-align:center;'>
-        Hasil Prediksi Manual: <b>{hasil}</b>
+        Hasil Prediksi Manual: <b>{hasil} / {label_translate.get(hasil, "-")}</b>
+
         </p>
     """, unsafe_allow_html=True)
