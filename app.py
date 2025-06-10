@@ -160,15 +160,16 @@ if "manual_input" not in st.session_state:
 if "manual_result" not in st.session_state:
     st.session_state.manual_result = None
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    suhu = st.number_input("Temperature (°C)", value=st.session_state.manual_input["Temperature"])
-    spo2 = st.number_input("SpO2 (%)", value=st.session_state.manual_input["SpO2"])
-with col2:
-    hr = st.number_input("HeartRate (BPM)", value=st.session_state.manual_input["HeartRate"])
-    sys = st.number_input("SYS", value=st.session_state.manual_input["SYS"])
-with col3:
-    dia = st.number_input("DIA", value=st.session_state.manual_input["DIA"])
+with st.container():
+    st.markdown("<div style='display: flex; gap: 20px; flex-wrap: wrap;'>", unsafe_allow_html=True)
+    
+    suhu = st.number_input("Temperature (°C)", value=st.session_state.manual_input["Temperature"], key="temp_input")
+    spo2 = st.number_input("SpO2 (%)", value=st.session_state.manual_input["SpO2"], key="spo2_input")
+    hr = st.number_input("HeartRate (BPM)", value=st.session_state.manual_input["HeartRate"], key="hr_input")
+    sys = st.number_input("SYS", value=st.session_state.manual_input["SYS"], key="sys_input")
+    dia = st.number_input("DIA", value=st.session_state.manual_input["DIA"], key="dia_input")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
 btn1, btn2 = st.columns([1, 1])
 with btn1:
