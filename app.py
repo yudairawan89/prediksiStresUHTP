@@ -83,16 +83,13 @@ label_translate = {
 st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
 
-data_tabel = pd.DataFrame({
-    "Variabel": ['Temperature (°C)', 'SpO2 (%)', 'HeartRate (BPM)', 'SYS', 'DIA'],
-    "Value": [
-        latest['Temperature'],
-        latest['SpO2'],
-        latest['HeartRate'],
-        latest['SYS'],
-        latest['DIA']
-    ]
-})
+data_rows = [
+    ('Temperature (°C)', latest['Temperature']),
+    ('SpO2 (%)', latest['SpO2']),
+    ('HeartRate (BPM)', latest['HeartRate']),
+    ('SYS', latest['SYS']),
+    ('DIA', latest['DIA'])
+]
 
 table_html = """
 <table style="width: 100%; background-color: #f9f9f9; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px;">
@@ -104,24 +101,18 @@ table_html = """
     </thead>
     <tbody>
 """
-for i in range(len(data_tabel)):
+
+for label, value in data_rows:
     table_html += f"""
         <tr>
-            <td style="text-align: center; padding: 10px;">{data_tabel.iloc[i, 0]}</td>
-            <td style="text-align: center; padding: 10px;">{data_tabel.iloc[i, 1]}</td>
+            <td style="text-align: center; padding: 10px;">{label}</td>
+            <td style="text-align: center; padding: 10px;">{value}</td>
         </tr>
     """
+
 table_html += "</tbody></table>"
 
 st.markdown(table_html, unsafe_allow_html=True)
-
-st.markdown(f"""
-<p style='font-size: 18px; background-color:#f0f0f0;
-padding:10px; border-radius:5px; text-align:center;'>
-<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
-
-</p>
-""", unsafe_allow_html=True)
 
 # === TAMPILKAN DATA LENGKAP ===
 st.markdown("<div class='section-title'>📊 Deteksi Stres Data Kolektif</div>", unsafe_allow_html=True)
