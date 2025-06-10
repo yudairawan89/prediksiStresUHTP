@@ -105,7 +105,7 @@ padding:10px; border-radius:5px; text-align:center;'>
 """, unsafe_allow_html=True)
 
 # === TAMPILKAN DATA LENGKAP ===
-st.markdown("<div class='section-title'>📊 Data Lengkap dan Prediksi</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>📊 Deteksi Stres Data Kolektif</div>", unsafe_allow_html=True)
 st.dataframe(df, use_container_width=True)
 
 # === DOWNLOAD BUTTON ===
@@ -116,7 +116,7 @@ def to_excel(df):
     return output.getvalue()
 
 st.download_button(
-    label="📥 Unduh Hasil Prediksi",
+    label="📥 Unduh Hasil Deteksi TIngkat Stres",
     data=to_excel(df),
     file_name="prediksi_stres.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
