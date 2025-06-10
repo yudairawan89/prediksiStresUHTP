@@ -44,6 +44,7 @@ def load_data():
     return pd.read_csv(url)
 
 st.title("🧠 UHTP Real-Time Student Stress Detection")
+
 st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
 st_autorefresh(interval=4000, key="refresh")
 
@@ -77,6 +78,7 @@ label_translate = {
     'Tense': 'Tegang'
 }
 
+
 # === TAMPILKAN HASIL TERAKHIR DALAM TABEL RAPI ===
 st.markdown("### 🔍 Hasil Prediksi Terakhir")
 latest = df.iloc[-1]
@@ -92,43 +94,14 @@ data_tabel = pd.DataFrame({
     ]
 })
 
-# TABEL DENGAN STRIPING DAN RATA TENGAH (DISEMPURNAKAN)
-table_html = """
-<table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-    <thead>
-        <tr style="background-color: #2980b9; color: white;">
-            <th style="text-align: center; padding: 10px;">Variabel</th>
-            <th style="text-align: center; padding: 10px;">Value</th>
-        </tr>
-    </thead>
-    <tbody>
-"""
-
-for i, row in data_tabel.iterrows():
-    bg_color = "#f2f2f2" if i % 2 == 0 else "#ffffff"
-    table_html += f"""
-        <tr style="background-color: {bg_color};">
-            <td style="text-align: center; padding: 10px;">{row['Variabel']}</td>
-            <td style="text-align: center; padding: 10px;">{row['Value']}</td>
-        </tr>
-    """
-
-table_html += "</tbody></table>"
-
-# ✅ Render sebagai HTML, bukan teks
-st.markdown(table_html, unsafe_allow_html=True)
-
-
-# PESAN PREDIKSI
-hari_ini = datetime.datetime.now().strftime('%A, %d %B %Y')
-pred_label = latest['Predicted Stress']
-pred_indo = label_translate.get(pred_label, "-")
+st.markdown(data_tabel.to_html(index=False, escape=False), unsafe_allow_html=True)
 
 st.markdown(f"""
-<div style='background-color:#001fdd; padding:15px; border-radius:10px; color:white; text-align:center; font-size:18px;'>
-    Pada hari <b>{hari_ini}</b>, data ini diprediksi memiliki tingkat stres: 
-    <span style='font-size:22px; font-weight:bold;'> {pred_label} / {pred_indo}</span>
-</div>
+<p style='font-size: 18px; background-color:#f0f0f0;
+padding:10px; border-radius:5px; text-align:center;'>
+<b>Predicted Stress Level:</b> <span style='font-size: 22px;'>{latest['Predicted Stress']} / {label_translate.get(latest['Predicted Stress'], "-")}</span>
+
+</p>
 """, unsafe_allow_html=True)
 
 # === TAMPILKAN DATA LENGKAP ===
@@ -143,7 +116,7 @@ def to_excel(df):
     return output.getvalue()
 
 st.download_button(
-    label="📥 Unduh Hasil Deteksi Tingkat Stres",
+    label="📥 Unduh Hasil Deteksi TIngkat Stres",
     data=to_excel(df),
     file_name="prediksi_stres.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -154,26 +127,25 @@ st.markdown("<div class='section-title'>🧪 Pengujian Menggunakan Data Manual</
 
 if "manual_input" not in st.session_state:
     st.session_state.manual_input = {
-        "Temperature": 0.0,
-        "SpO2": 0.0,
-        "HeartRate": 0.0,
-        "SYS": 0.0,
-        "DIA": 0.0
-    }
-
+    "Temperature": 0.0,
+    "SpO2": 0.0,
+    "HeartRate": 0.0,
+    "SYS": 0.0,
+    "DIA": 0.0
+}
+    
 if "manual_result" not in st.session_state:
     st.session_state.manual_result = None
 
-with st.container():
-    st.markdown("<div style='display: flex; gap: 20px; flex-wrap: wrap;'>", unsafe_allow_html=True)
-    
-    suhu = st.number_input("Temperature (°C)", value=st.session_state.manual_input["Temperature"], key="temp_input")
-    spo2 = st.number_input("SpO2 (%)", value=st.session_state.manual_input["SpO2"], key="spo2_input")
-    hr = st.number_input("HeartRate (BPM)", value=st.session_state.manual_input["HeartRate"], key="hr_input")
-    sys = st.number_input("SYS", value=st.session_state.manual_input["SYS"], key="sys_input")
-    dia = st.number_input("DIA", value=st.session_state.manual_input["DIA"], key="dia_input")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+col1, col2, col3 = st.columns(3)
+with col1:
+    suhu = st.number_input("Temperature (°C)", value=st.session_state.manual_input["Temperature"])
+    spo2 = st.number_input("SpO2 (%)", value=st.session_state.manual_input["SpO2"])
+with col2:
+    hr = st.number_input("HeartRate (BPM)", value=st.session_state.manual_input["HeartRate"])
+    sys = st.number_input("SYS", value=st.session_state.manual_input["SYS"])
+with col3:
+    dia = st.number_input("DIA", value=st.session_state.manual_input["DIA"])
 
 btn1, btn2 = st.columns([1, 1])
 with btn1:
@@ -215,5 +187,6 @@ if st.session_state.manual_result:
         <p style='font-size: 18px; background-color:#d9f2d9;
         padding:10px; border-radius:5px; text-align:center;'>
         Hasil Prediksi Manual: <b>{hasil} / {label_translate.get(hasil, "-")}</b>
+
         </p>
     """, unsafe_allow_html=True)
