@@ -45,8 +45,8 @@ def load_data():
 
 st.title("🧠 StressSense: Real-Time Student Stress Detection")
 
-st.markdown("<div class='section-title'>Live Monitoring (Auto-refresh setiap 7 detik)</div>", unsafe_allow_html=True)
-st_autorefresh(interval=7000, key="refresh")
+st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
+st_autorefresh(interval=4000, key="refresh")
 
 # === LOAD DAN BERSIHKAN DATA ===
 df = load_data()
