@@ -43,7 +43,7 @@ def load_data():
     url = "https://docs.google.com/spreadsheets/d/1ftXpDVdOWA3nDothJGFxCBfZ-L2Ccr4SMBVyd4_C_v8/export?format=csv"
     return pd.read_csv(url)
 
-st.title("🧠 StressSense: Real-Time Student Stress Detection")
+st.title("🧠 UHTP Real-Time Student Stress Detection")
 
 st.markdown("<div class='section-title'>Hasil Deteksi Tingkat Stres Secara Real Time</div>", unsafe_allow_html=True)
 st_autorefresh(interval=4000, key="refresh")
